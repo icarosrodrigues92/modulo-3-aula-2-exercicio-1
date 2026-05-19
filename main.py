@@ -20,6 +20,7 @@ class Item(BaseModel):
 
 class ListaCreate(BaseModel):
     nome: str
+    usuario_id: str
 
 
 # ----------------------------
@@ -33,6 +34,7 @@ def criar_lista(lista: ListaCreate):
     data = {
         "id": lista_id,
         "nome": lista.nome,
+        "usuario_id": lista.usuario_id,
         "itens": []
     }
 
@@ -94,15 +96,18 @@ def remover_item(lista_id: str, item: Item):
 
 
 # ----------------------------
-# Listar todas as listas
+# Listar todas as listas do usuário
 # ----------------------------
 @app.get("/listas")
-def listar_listas():
+def listar_listas(usuario_id: str):
+    """RF09: Retorna todas as listas associadas a um usuário autenticado."""
     keys = r.keys("lista:*")
     listas = []
 
     for key in keys:
-        listas.append(json.loads(r.get(key)))
+        lista = json.loads(r.get(key))
+        if lista.get("usuario_id") == usuario_id:
+            listas.append(lista)
 
     return listas
 
